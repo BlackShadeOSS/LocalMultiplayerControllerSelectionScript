@@ -26,8 +26,8 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
     private void OnEnable()
     {
         InputSystem.onDeviceChange += OnDeviceChange;
-        UpdateInputDeviceList(); // Initialize the list on enable
         SelectedDevices = new InputDevice[playerDropdowns.Length];
+        UpdateInputDeviceList(); // Initialize the list on enable
     }
 
     private void OnDisable()
@@ -60,9 +60,24 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
         for (int i = 0; i < playerDropdowns.Length; i++)
         {
             var dropdown = playerDropdowns[i];
+            var playerNumber = int.Parse(GetNumbers(dropdown.name));
+            var PerPlayerDevices = new List<InputDevice>();
+            foreach (var device in AvailableInputDevices)
+            {
+                PerPlayerDevices.Add(device);
+            }
+            for (var j = 0; j < SelectedDevices.Length; j++)
+            {
+                if (SelectedDevices[i] != null && PerPlayerDevices.Contains(SelectedDevices[i]) && j != playerNumber - 1)
+                {
+                    Debug.Log("Removing device: " + SelectedDevices[i].displayName + " from player " + (j + 1));
+                    PerPlayerDevices.Remove(SelectedDevices[j]);
+                }
+            }
             dropdown.ClearOptions();
             List<string> options = new List<string>();
-            foreach (var device in AvailableInputDevices)
+            options.Add("Wybierz urządzenie");
+            foreach (var device in PerPlayerDevices)
             {
                 if (device is Keyboard)
                 {
@@ -74,7 +89,50 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
                 }
             }
             dropdown.AddOptions(options);
-            dropdown.onValueChanged.AddListener((value) => OnDropdownValueChanged(int.Parse(GetNumbers(dropdown.name))));
+            dropdown.onValueChanged.AddListener((value) => OnDropdownValueChanged(playerNumber));
+        }
+    }
+
+    private void UpdateDropdownOptions(int playerNumberToSkip)
+    {
+        for (int i = 0; i < playerDropdowns.Length; i++)
+        {
+            if (i == playerNumberToSkip - 1)
+            {
+                Debug.Log("Skipping player " + playerNumberToSkip);
+                continue;
+            }
+            var dropdown = playerDropdowns[i];
+            var playerNumber = int.Parse(GetNumbers(dropdown.name));
+            var PerPlayerDevices = new List<InputDevice>();
+            foreach (var device in AvailableInputDevices)
+            {
+                PerPlayerDevices.Add(device);
+            }
+            for (var j = 0; j < SelectedDevices.Length; j++)
+            {
+                if (SelectedDevices[i] != null && PerPlayerDevices.Contains(SelectedDevices[i]) && j != playerNumber - 1)
+                {
+                    Debug.Log("Removing device: " + SelectedDevices[i].displayName + " from player " + (j + 1));
+                    PerPlayerDevices.Remove(SelectedDevices[j]);
+                }
+            }
+            dropdown.ClearOptions();
+            List<string> options = new List<string>();
+            options.Add("Wybierz urządzenie");
+            foreach (var device in PerPlayerDevices)
+            {
+                if (device is Keyboard)
+                {
+                    options.Add("Klawiatura i mysz");
+                }
+                else if (device is Gamepad || device is Joystick)
+                {
+                    options.Add(device.displayName);
+                }
+            }
+            dropdown.AddOptions(options);
+            dropdown.onValueChanged.AddListener((value) => OnDropdownValueChanged(playerNumber));
         }
     }
     
@@ -87,8 +145,9 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             return;
         }
 
-        int index = playerDropdowns[playerNumber - 1].value;
+        int index = playerDropdowns[playerNumber - 1].value + 1;
         SelectDevice(index, playerNumber);
+        UpdateDropdownOptions(playerNumber);
     }
     
     private static string GetNumbers(string input)
