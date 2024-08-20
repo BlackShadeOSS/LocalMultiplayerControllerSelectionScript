@@ -23,6 +23,10 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             SelectedDevices[playerNumber-1] = AvailableInputDevices[index];
             Debug.Log("Player " + playerNumber + " selected device: " + AvailableInputDevices[index].displayName);
         }
+        else
+        {
+            Debug.Log("Invalid index: " + index);
+        }
     }
     
     private void OnEnable()
@@ -85,97 +89,24 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
                 {
                     continue;
                 }
-                var InputDevice = AvailableInputDevices[j];
+                var inputDevice = AvailableInputDevices[j];
                 var toggle = Instantiate(exampleToggle, toggleGroup.transform);
                 toggle.GetComponent<Toggle>().group = toggleGroup.GetComponent<ToggleGroup>();
-                toggle.GetComponentInChildren<Text>().text = InputDevice.displayName;
+                toggle.GetComponentInChildren<Text>().text = inputDevice.displayName;
+                Debug.Log("Current index: " + j + " Device: " + inputDevice.displayName + " Player: " + playerNumber + " ToggleGroup: " + toggleGroup.name);
+                var index = j;
+                toggle.GetComponent<Toggle>().onValueChanged.AddListener((value) => SelectDevice(index, playerNumber));
                 toggle.SetActive(true);
                 toggle.transform.localPosition = new Vector2(0, -30 * j);
+                if (SelectedDevices[playerNumber - 1] == inputDevice)
+                {
+                    toggle.GetComponent<Toggle>().isOn = true;
+                    Debug.Log("Setting toggle for device: " + inputDevice.displayName + " to true for player: " + playerNumber + "as it was previously selected");
+                }
             }
         }
     }
     
-    // private void UpdateDropdownOptions()
-    // {
-    //     for (int i = 0; i < playerToggleGroups.Length; i++)
-    //     {
-    //         var dropdown = playerToggleGroups[i];
-    //         var playerNumber = int.Parse(GetNumbers(dropdown.name));
-    //         var PerPlayerDevices = new List<InputDevice>();
-    //         foreach (var device in AvailableInputDevices)
-    //         {
-    //             PerPlayerDevices.Add(device);
-    //         }
-    //         for (var j = 0; j < SelectedDevices.Length; j++)
-    //         {
-    //             if (SelectedDevices[j] != null && PerPlayerDevices.Contains(SelectedDevices[j]) && j != i)
-    //             {
-    //                 Debug.Log("Removing device: " + SelectedDevices[j].displayName + " from player " + (j + 1));
-    //                 PerPlayerDevices.Remove(SelectedDevices[j]);
-    //             }
-    //         }
-    //         dropdown.ClearOptions();
-    //         List<string> options = new List<string>();
-    //
-    //         foreach (var device in PerPlayerDevices)
-    //         {
-    //             if (device is Keyboard)
-    //             {
-    //                 options.Add("Klawiatura i mysz");
-    //             }
-    //             else if (device is Gamepad || device is Joystick)
-    //             {
-    //                 options.Add(device.displayName);
-    //             }
-    //         }
-    //         dropdown.AddOptions(options);
-    //         dropdown.onValueChanged.AddListener((value) => OnDropdownValueChanged(playerNumber));
-    //         dropdown.RefreshShownValue();
-    //     }
-    // }
-
-    // private void UpdateDropdownOptions(int playerNumberToSkip)
-    // {
-    //     for (int i = 0; i < playerDropdowns.Length; i++)
-    //     {
-    //         if (i == playerNumberToSkip - 1)
-    //         {
-    //             Debug.Log("Skipping player " + playerNumberToSkip);
-    //             continue;
-    //         }
-    //         var dropdown = playerDropdowns[i];
-    //         var playerNumber = int.Parse(GetNumbers(dropdown.name));
-    //         var PerPlayerDevices = new List<InputDevice>();
-    //         foreach (var device in AvailableInputDevices)
-    //         {
-    //             PerPlayerDevices.Add(device);
-    //         }
-    //         for (var j = 0; j < SelectedDevices.Length; j++)
-    //         {
-    //             if (SelectedDevices[i] != null && PerPlayerDevices.Contains(SelectedDevices[i]) && j != playerNumber - 1)
-    //             {
-    //                 Debug.Log("Removing device: " + SelectedDevices[i].displayName + " from player " + (j + 1));
-    //                 PerPlayerDevices.Remove(SelectedDevices[j]);
-    //             }
-    //         }
-    //         dropdown.ClearOptions();
-    //         List<string> options = new List<string>();
-    //         foreach (var device in PerPlayerDevices)
-    //         {
-    //             if (device is Keyboard)
-    //             {
-    //                 options.Add("Klawiatura i mysz");
-    //             }
-    //             else if (device is Gamepad || device is Joystick)
-    //             {
-    //                 options.Add(device.displayName);
-    //             }
-    //         }
-    //         dropdown.AddOptions(options);
-    //         dropdown.onValueChanged.AddListener((value) => OnDropdownValueChanged(playerNumber));
-    //     }
-    // }
-    //
     // public void OnDropdownValueChanged(int playerNumber)
     // {
     //     // Check if playerNumber is a valid index for playerDropdowns
