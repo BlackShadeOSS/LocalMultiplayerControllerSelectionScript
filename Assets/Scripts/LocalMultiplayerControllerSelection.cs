@@ -68,15 +68,15 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             }
             for (var j = 0; j < SelectedDevices.Length; j++)
             {
-                if (SelectedDevices[i] != null && PerPlayerDevices.Contains(SelectedDevices[i]) && j != playerNumber - 1)
+                if (SelectedDevices[j] != null && PerPlayerDevices.Contains(SelectedDevices[j]) && j != i)
                 {
-                    Debug.Log("Removing device: " + SelectedDevices[i].displayName + " from player " + (j + 1));
+                    Debug.Log("Removing device: " + SelectedDevices[j].displayName + " from player " + (j + 1));
                     PerPlayerDevices.Remove(SelectedDevices[j]);
                 }
             }
             dropdown.ClearOptions();
             List<string> options = new List<string>();
-            options.Add("Wybierz urządzenie");
+
             foreach (var device in PerPlayerDevices)
             {
                 if (device is Keyboard)
@@ -90,6 +90,7 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             }
             dropdown.AddOptions(options);
             dropdown.onValueChanged.AddListener((value) => OnDropdownValueChanged(playerNumber));
+            dropdown.RefreshShownValue();
         }
     }
 
@@ -119,7 +120,6 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             }
             dropdown.ClearOptions();
             List<string> options = new List<string>();
-            options.Add("Wybierz urządzenie");
             foreach (var device in PerPlayerDevices)
             {
                 if (device is Keyboard)
@@ -145,7 +145,7 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             return;
         }
 
-        int index = playerDropdowns[playerNumber - 1].value + 1;
+        int index = playerDropdowns[playerNumber - 1].value;
         SelectDevice(index, playerNumber);
         UpdateDropdownOptions(playerNumber);
     }
