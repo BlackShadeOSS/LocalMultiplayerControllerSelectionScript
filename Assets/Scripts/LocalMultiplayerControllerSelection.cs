@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
     public GameObject exampleToggle;
     public GameObject[] playerToggleGroups;
     public static InputDevice[] SelectedDevices;
+    public Button startButton;
     
     public void SelectDevice(int index, int playerNumber)
     {
@@ -28,7 +30,12 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             Debug.Log("Invalid index: " + index);
         }
     }
-    
+
+    private void Start()
+    {
+        DeleteAllToggles();
+    }
+
     private void OnEnable()
     {
         InputSystem.onDeviceChange += OnDeviceChange;
@@ -60,61 +67,13 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
         AvailableInputDevices = devices.ToArray();
         UpdateToggleGroupOptions();
     }
-    
-    // Update the toggle group options
-    // private void UpdateToggleGroupOptions()
-    // {
-    //     for (int i = 0; i < playerToggleGroups.Length; i++)
-    //     {
-    //         var toggleGroup = playerToggleGroups[i];
-    //         var playerNumber = int.Parse(GetNumbers(toggleGroup.name));
-    //         foreach (Transform child in toggleGroup.transform)
-    //         {
-    //             DestroyImmediate(child.gameObject);
-    //         }
-    //         for (int j = 0; j < AvailableInputDevices.Length; j++)
-    //         {   
-    //             //checking if there is already a toggle for this device
-    //             var toggles = toggleGroup.GetComponentsInChildren<Toggle>();
-    //             bool exists = false;
-    //             foreach (var togggle in toggles)
-    //             {
-    //                 if (togggle.GetComponentInChildren<Text>().text == AvailableInputDevices[j].displayName)
-    //                 {
-    //                     Debug.Log("Toggle for device: " + AvailableInputDevices[j].displayName + " already exists");
-    //                     exists = true;
-    //                 }
-    //             }
-    //             if (exists)
-    //             {
-    //                 continue;
-    //             }
-    //             var inputDevice = AvailableInputDevices[j];
-    //             var toggle = Instantiate(exampleToggle, toggleGroup.transform);
-    //             toggle.GetComponent<Toggle>().group = toggleGroup.GetComponent<ToggleGroup>();
-    //             toggle.GetComponentInChildren<Text>().text = inputDevice.displayName;
-    //             var index = j;
-    //             Debug.Log("Current index: " + j + " Device: " + inputDevice.displayName + " Player: " + playerNumber + " ToggleGroup: " + toggleGroup.name);
-    //             toggle.SetActive(true);
-    //             toggle.transform.localPosition = new Vector2(0, -30 * j);
-    //             if (SelectedDevices[playerNumber - 1] == inputDevice)
-    //             {
-    //                 toggle.GetComponent<Toggle>().isOn = true;
-    //                 Debug.Log("Setting toggle for device: " + inputDevice.displayName + " to true for player: " + playerNumber + "as it was previously selected");
-    //             }
-    //             else
-    //             {
-    //                 toggle.GetComponent<Toggle>().isOn = false;
-    //             }
-    //             toggle.GetComponent<Toggle>().onValueChanged.AddListener((value) => OnToggleValueChanged(index, playerNumber, value));
-    //         }
-    //     }
-    // }
 
     private void UpdateToggleGroupOptions()
     {
+        Debug.Log("Updating toggle group options");
         for (int i = 0; i < playerToggleGroups.Length; i++) 
         {
+                Debug.Log("Updating PlayerToggleGroup number: " + i);
                 var toggleGroup = playerToggleGroups[i];
                 var playerNumber = int.Parse(GetNumbers(toggleGroup.name));
                 if (toggleGroup.transform.childCount == 0)
@@ -130,30 +89,35 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
                 {
                     foreach (Transform child in toggleGroup.transform)
                     {
+                        Debug.Log("Checking if device: " + child.GetComponentInChildren<Text>().text + " is available for player: " + playerNumber);
                         bool isDeviceAvailable = false;
                         for (int j = 0; j < AvailableInputDevices.Length; j++)
                         {
                             if (child.GetComponentInChildren<Text>().text == AvailableInputDevices[j].displayName)
                             {
                                 isDeviceAvailable = true;
+                                Debug.Log("Device: " + AvailableInputDevices[j].displayName + " is available for player: " + playerNumber);
                                 break;
                             }
                         }
 
                         if (!isDeviceAvailable)
                         {
+                            Debug.Log("Device: " + child.GetComponentInChildren<Text>().text + " is not available for player: " + playerNumber);
                             Destroy(child.gameObject);
                         }
                     }
 
                     for (int j = 0; j < AvailableInputDevices.Length; j++)
                     {
+                        Debug.Log("Checking if device: " + AvailableInputDevices[j].displayName + " is available for player: " + playerNumber);
                         bool isDeviceAvailable = false;
                         for (int k = 0; k < toggleGroup.transform.childCount; k++)
                         {
                             if (toggleGroup.transform.GetChild(k).GetComponentInChildren<Text>().text ==
                                 AvailableInputDevices[j].displayName)
                             {
+                                Debug.Log("Device: " + AvailableInputDevices[j].displayName + " is already available for player: " + playerNumber);
                                 isDeviceAvailable = true;
                                 break;
                             }
@@ -170,6 +134,7 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
     
     private void CreateToggleForDevice(InputDevice inputDevice, int playerNumber)
     {
+        Debug.Log("Creating toggle for device: " + inputDevice.displayName + " for player: " + playerNumber);
         var toggleGroup = playerToggleGroups[playerNumber - 1];
         var toggle = Instantiate(exampleToggle, toggleGroup.transform);
         toggle.GetComponent<Toggle>().group = toggleGroup.GetComponent<ToggleGroup>();
@@ -180,9 +145,21 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
         toggle.transform.localPosition = new Vector2(0, -30 * index);
         toggle.GetComponent<Toggle>().onValueChanged.AddListener((value) => OnToggleValueChanged(index, playerNumber, value));
     }
+    
+    private void DeleteAllToggles()
+    {
+        for (int i = 0; i < playerToggleGroups.Length; i++)
+        {
+            foreach (Transform child in playerToggleGroups[i].transform)
+            {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+    }
 
     private void BlockTogglesUpdate(int playerNumber)
     {
+        Debug.Log("Blocking toggles for player: " + playerNumber);
         for (int i = 0; i < playerToggleGroups.Length; i++)
         {
             if (playerNumber-1 != i)
@@ -220,6 +197,29 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
             SelectedDevices[playerNumber - 1] = null;
         }
         BlockTogglesUpdate(playerNumber);
+        CheckIfAllPlayersSelected();
+    }
+
+    private void CheckIfAllPlayersSelected()
+    {
+        bool allPlayersSelected = true;
+        for (int i = 0; i < SelectedDevices.Length; i++)
+        {
+            if (SelectedDevices[i] == null)
+            {
+                allPlayersSelected = false;
+                break;
+            }
+        }
+
+        if (allPlayersSelected)
+        {
+            startButton.interactable = true;
+        }
+        else
+        {
+            startButton.interactable = false;
+        }
     }
 
     private static string GetNumbers(string input)
