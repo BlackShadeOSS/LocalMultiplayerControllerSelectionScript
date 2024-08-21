@@ -113,29 +113,57 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
 
     private void BlockTogglesUpdate(int playerNumber)
     {
-        
+        for (int i = 0; i < playerToggleGroups.Length; i++)
+        {
+            if (playerNumber-1 != i)
+            {
+                foreach (Transform child in playerToggleGroups[i].transform)
+                {
+                    if (SelectedDevices[playerNumber - 1] != null)
+                    {
+                        if (child.GetComponentInChildren<Text>().text == SelectedDevices[playerNumber - 1].displayName)
+                        {
+                            child.GetComponent<Toggle>().interactable = false;
+                        }
+                        else
+                        {
+                            child.GetComponent<Toggle>().interactable = true;
+                        }
+                    }
+                    else
+                    {
+                        child.GetComponent<Toggle>().interactable = true;
+                    }
+                }
+            }
+        }
     }
 
     private void OnToggleValueChanged(int index, int playerNumber, bool isOn)
     {
         Debug.Log("The value is " + isOn + " for player " + playerNumber + " with device index of " + index);
-        if (isOn == true) SelectDevice(index, playerNumber);
+        if (isOn == true)
+        {
+            SelectDevice(index, playerNumber);
+        } else
+        {
+            SelectedDevices[playerNumber - 1] = null;
+        }
+        BlockTogglesUpdate(playerNumber);
     }
-    
-    // public void OnDropdownValueChanged(int playerNumber)
-    // {
-    //     // Check if playerNumber is a valid index for playerDropdowns
-    //     if (playerNumber <= 0 || playerNumber > playerDropdowns.Length)
-    //     {
-    //         Debug.Log("Invalid player number: " + playerNumber);
-    //         return;
-    //     }
-    //
-    //     int index = playerDropdowns[playerNumber - 1].value;
-    //     SelectDevice(index, playerNumber);
-    //     UpdateDropdownOptions(playerNumber);
-    // }
-    //
+//     NullReferenceException: Object reference not set to an instance of an object
+// LocalMultiplayerControllerSelection.BlockTogglesUpdate (System.Int32 playerNumber) (at Assets/Scripts/LocalMultiplayerControllerSelection.cs:122)
+// LocalMultiplayerControllerSelection.OnToggleValueChanged (System.Int32 index, System.Int32 playerNumber, System.Boolean isOn) (at Assets/Scripts/LocalMultiplayerControllerSelection.cs:145)
+// LocalMultiplayerControllerSelection+<>c__DisplayClass9_1.<UpdateToggleGroupOptions>b__0 (System.Boolean value) (at Assets/Scripts/LocalMultiplayerControllerSelection.cs:109)
+// UnityEngine.Events.InvokableCall`1[T1].Invoke (T1 args0) (at <30adf90198bc4c4b83910c6fb1877998>:0)
+// UnityEngine.Events.UnityEvent`1[T0].Invoke (T0 arg0) (at <30adf90198bc4c4b83910c6fb1877998>:0)
+// UnityEngine.UI.Toggle.Set (System.Boolean value, System.Boolean sendCallback) (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/UI/Core/Toggle.cs:284)
+// UnityEngine.UI.Toggle.set_isOn (System.Boolean value) (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/UI/Core/Toggle.cs:247)
+// UnityEngine.UI.Toggle.InternalToggle () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/UI/Core/Toggle.cs:317)
+// UnityEngine.UI.Toggle.OnPointerClick (UnityEngine.EventSystems.PointerEventData eventData) (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/UI/Core/Toggle.cs:328)
+// UnityEngine.EventSystems.ExecuteEvents.Execute (UnityEngine.EventSystems.IPointerClickHandler handler, UnityEngine.EventSystems.BaseEventData eventData) (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/ExecuteEvents.cs:57)
+// UnityEngine.EventSystems.ExecuteEvents.Execute[T] (UnityEngine.GameObject target, UnityEngine.EventSystems.BaseEventData eventData, UnityEngine.EventSystems.ExecuteEvents+EventFunction`1[T1] functor) (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/ExecuteEvents.cs:272)
+// UnityEngine.EventSystems.EventSystem:Update() (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
     private static string GetNumbers(string input)
     {
         return new string(input.Where(c => char.IsDigit(c)).ToArray());
