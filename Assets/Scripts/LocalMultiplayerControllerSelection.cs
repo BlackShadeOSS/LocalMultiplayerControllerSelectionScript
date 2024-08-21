@@ -93,9 +93,8 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
                 var toggle = Instantiate(exampleToggle, toggleGroup.transform);
                 toggle.GetComponent<Toggle>().group = toggleGroup.GetComponent<ToggleGroup>();
                 toggle.GetComponentInChildren<Text>().text = inputDevice.displayName;
-                Debug.Log("Current index: " + j + " Device: " + inputDevice.displayName + " Player: " + playerNumber + " ToggleGroup: " + toggleGroup.name);
                 var index = j;
-                toggle.GetComponent<Toggle>().onValueChanged.AddListener((value) => SelectDevice(index, playerNumber));
+                Debug.Log("Current index: " + j + " Device: " + inputDevice.displayName + " Player: " + playerNumber + " ToggleGroup: " + toggleGroup.name);
                 toggle.SetActive(true);
                 toggle.transform.localPosition = new Vector2(0, -30 * j);
                 if (SelectedDevices[playerNumber - 1] == inputDevice)
@@ -103,8 +102,24 @@ public class LocalMultiplayerControllerSelection : MonoBehaviour
                     toggle.GetComponent<Toggle>().isOn = true;
                     Debug.Log("Setting toggle for device: " + inputDevice.displayName + " to true for player: " + playerNumber + "as it was previously selected");
                 }
+                else
+                {
+                    toggle.GetComponent<Toggle>().isOn = false;
+                }
+                toggle.GetComponent<Toggle>().onValueChanged.AddListener((value) => OnToggleValueChanged(index, playerNumber, value));
             }
         }
+    }
+
+    private void BlockTogglesUpdate(int playerNumber)
+    {
+        
+    }
+
+    private void OnToggleValueChanged(int index, int playerNumber, bool isOn)
+    {
+        Debug.Log("The value is " + isOn + " for player " + playerNumber + " with device index of " + index);
+        if (isOn == true) SelectDevice(index, playerNumber);
     }
     
     // public void OnDropdownValueChanged(int playerNumber)
