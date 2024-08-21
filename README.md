@@ -1,7 +1,7 @@
 # LocalMultiplayerControllerSelectionScript
 
 ## About the script
-LMCSS is a script that dynamicly updates a list od toggles so user can select a input device. It also makes sure that only one player at the time uses a specific device.
+LMCSS is a script that dynamicly updates a list of toggles so user can select a input device. It also makes sure that only one player at the time uses a specific device.
 I tried to write this thing as best as I could but C# is not a language that I am used to. **This was made in Unity 2022.3.13f**
 
 This repo contains a example scene that uses this script. So it should be a good starting point.
